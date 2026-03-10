@@ -22,11 +22,21 @@ except ImportError:
 
 from routers import session, risk, geo, events
 import ws_simulator
+import ws_engine
+import database
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize SQLite database
+    await database.init_db()
+    yield
 
 app = FastAPI(
     title="NEXUS TLS Risk Engine",
     description="Secure session management API with risk-adaptive timeouts, geo-fencing, and behavioral biometrics",
     version="2.0.0",
+    lifespan=lifespan
 )
 
 # CORS
@@ -46,6 +56,7 @@ app.include_router(risk.router)
 app.include_router(geo.router)
 app.include_router(events.router)
 app.include_router(ws_simulator.router)
+app.include_router(ws_engine.router)
 
 # Instrument with OpenTelemetry if available
 if OTEL_AVAILABLE:

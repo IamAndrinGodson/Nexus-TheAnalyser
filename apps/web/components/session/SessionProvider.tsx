@@ -12,10 +12,11 @@ import {
 } from "react";
 
 const BASE_TIMEOUT = 120;
+const HEARTBEAT_INTERVAL = 10000;
+const ACTIVITY_DEBOUNCE = 1500;
 const WARN_AT = 30;
-const HEARTBEAT_INTERVAL = 15_000;
-const ACTIVITY_DEBOUNCE = 1_500;
-const WS_URL = "ws://localhost:8000/ws/session/demo";
+const WS_URL = "ws://localhost:8000/ws/session/real/demo"; // Connect to the real engine
+const REST_URL = "http://localhost:8000/api/session/demo";
 const WS_RECONNECT_DELAY = 3_000;
 
 const ACTIVITY_EVENTS = [

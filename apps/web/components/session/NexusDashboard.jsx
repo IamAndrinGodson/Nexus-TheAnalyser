@@ -1,19 +1,20 @@
 // components/session/NexusDashboard.jsx
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useSessionEngine } from "./SessionProvider";
 import Head from "next/head";
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 function fmt(s) {
   const m = Math.floor(s / 60);
   const rs = s % 60;
-  return `${m}:${rs < 10 ? "0" : ""}${rs}`;
+  return `${m}:${rs < 10 ? "0" : ""}${rs} `;
 }
 
 const Tag = ({ c, children, onClick }) => (
   <span onClick={onClick} style={{
-    background: `${c}15`, border: `1px solid ${c}33`, color: c, padding: "3px 8px", cursor: onClick ? "pointer" : "default",
+    background: `${c} 15`, border: `1px solid ${c} 33`, color: c, padding: "3px 8px", cursor: onClick ? "pointer" : "default",
     borderRadius: 6, fontSize: 9, fontWeight: 700, letterSpacing: 1, fontFamily: "'JetBrains Mono',monospace",
     whiteSpace: "nowrap", transition: "all 0.2s"
   }}>
@@ -24,7 +25,7 @@ const Tag = ({ c, children, onClick }) => (
 const Dot = ({ c, pulse }) => (
   <span style={{
     width: 6, height: 6, borderRadius: "50%", background: c, display: "inline-block",
-    boxShadow: `0 0 10px ${c}`, animation: pulse ? "ping 1.5s ease-out infinite" : "none"
+    boxShadow: `0 0 10px ${c} `, animation: pulse ? "ping 1.5s ease-out infinite" : "none"
   }} />
 );
 
@@ -36,10 +37,10 @@ function ExecutiveStrip({ stats }) {
   useEffect(() => { setPrev(stats); }, [stats]);
 
   const kpis = [
-    { label: "SYS UPTIME", val: `${stats.uptime}%`, c: "#00e5a0" },
+    { label: "SYS UPTIME", val: `${stats.uptime}% `, c: "#00e5a0" },
     { label: "ACTIVE SESSIONS", val: stats.activeSessions, c: "#00c8b0", prevVal: prev.activeSessions },
     { label: "AVG TRUST", val: stats.avgTrustScore, c: "#a78bfa", prevVal: prev.avgTrustScore },
-    { label: "P95 LATENCY", val: `${stats.p95Latency}ms`, c: stats.p95Latency > 30 ? "#f5c518" : "#00e5a0" },
+    { label: "P95 LATENCY", val: `${stats.p95Latency} ms`, c: stats.p95Latency > 30 ? "#f5c518" : "#00e5a0" },
     { label: "THREATS BLOCKED", val: stats.blockedThreats, c: "#ff4d4d", prevVal: prev.blockedThreats },
   ];
 
@@ -73,7 +74,7 @@ function ThreatFeed({ threats }) {
         {threats.map((t, i) => {
           const c = t.severity === "CRITICAL" ? "#ff4d4d" : t.severity === "HIGH" ? "#ff7a50" : t.severity === "MEDIUM" ? "#f5c518" : "#5a7a9a";
           return (
-            <div key={i} style={{ display: "flex", gap: 10, padding: "10px", background: i === 0 ? `${c}11` : "transparent", border: `1px solid ${i === 0 ? c + '33' : '#1e2d4533'}`, borderRadius: 10, animation: i === 0 ? "slideDown 0.3s ease-out" : "none" }}>
+            <div key={i} style={{ display: "flex", gap: 10, padding: "10px", background: i === 0 ? `${c} 11` : "transparent", border: `1px solid ${i === 0 ? c + '33' : '#1e2d4533'} `, borderRadius: 10, animation: i === 0 ? "slideDown 0.3s ease-out" : "none" }}>
               <div style={{ fontSize: 10, color: c, fontWeight: "bold", fontFamily: "monospace", flexShrink: 0 }}>{t.time}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
@@ -93,16 +94,16 @@ function ThreatFeed({ threats }) {
 
 // 3. Trust Score Chart (SVG Area)
 function TrustScoreChart({ history }) {
-  const points = history.map((val, i) => `${(i / Math.max(1, history.length - 1)) * 100},${100 - val}`).join(" ");
-  const areaPoints = `0,100 ${points} 100,100`;
+  const points = history.map((val, i) => `${(i / Math.max(1, history.length - 1)) * 100},${100 - val} `).join(" ");
+  const areaPoints = `0, 100 ${points} 100, 100`;
   const curr = history[history.length - 1] || 0;
   const c = curr > 80 ? "#00e5a0" : curr > 60 ? "#f5c518" : "#ff4d4d";
 
   return (
-    <div className="anim-panel anim-scale-in d1" style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${c}44`, borderRadius: 14, padding: "18px", position: "relative", overflow: "hidden", boxShadow: `inset 0 0 40px ${c}0a` }}>
+    <div className="anim-panel anim-scale-in d1" style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${c} 44`, borderRadius: 14, padding: "18px", position: "relative", overflow: "hidden", boxShadow: `inset 0 0 40px ${c} 0a` }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, position: "relative", zIndex: 2 }}>
         <div style={{ fontSize: 9, letterSpacing: 3, color: "#555" }}>LIVE TRUST TRAJECTORY</div>
-        <div style={{ fontSize: 24, fontWeight: 800, color: c, fontFamily: "monospace", textShadow: `0 0 10px ${c}66` }}>{curr}</div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: c, fontFamily: "monospace", textShadow: `0 0 10px ${c} 66` }}>{curr}</div>
       </div>
       <div style={{ height: 60, width: "100%", position: "relative", zIndex: 1 }}>
         <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ overflow: "visible" }}>
@@ -113,7 +114,7 @@ function TrustScoreChart({ history }) {
             </linearGradient>
           </defs>
           <polygon points={areaPoints} fill="url(#trustGrad)" style={{ transition: "all 0.5s" }} />
-          <polyline points={points} fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "all 0.5s", filter: `drop-shadow(0 0 4px ${c}88)` }} />
+          <polyline points={points} fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "all 0.5s", filter: `drop - shadow(0 0 4px ${c}88)` }} />
           {history.length > 0 && (
             <circle cx="100" cy={100 - curr} r="3" fill="#fff" stroke={c} strokeWidth="2" style={{ transition: "all 0.5s" }} />
           )}
@@ -139,7 +140,7 @@ function RadarBiometrics({ scores }) {
   const getPt = (val, i) => {
     const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2;
     const dist = (val / 100) * r;
-    return `${cx + Math.cos(angle) * dist},${cy + Math.sin(angle) * dist}`;
+    return `${cx + Math.cos(angle) * dist},${cy + Math.sin(angle) * dist} `;
   };
 
   const points = vals.map((v, i) => getPt(v, i)).join(" ");
@@ -163,7 +164,7 @@ function RadarBiometrics({ scores }) {
           <line key={i} x1="50" y1="50" x2={getPt(100, i).split(",")[0]} y2={getPt(100, i).split(",")[1]} stroke="#1e2d45" strokeWidth="1" />
         ))}
         {/* Data polygon */}
-        <polygon points={points} fill={`${tc}33`} stroke={tc} strokeWidth="1.5" style={{ transition: "all 0.5s ease" }} />
+        <polygon points={points} fill={`${tc} 33`} stroke={tc} strokeWidth="1.5" style={{ transition: "all 0.5s ease" }} />
         {/* Labels */}
         {labels.map((l, i) => {
           const pt = getPt(115, i).split(",");
@@ -178,13 +179,13 @@ function RadarBiometrics({ scores }) {
 function Toaster({ toasts, onDismiss }) {
   return (
     <div style={{ position: "fixed", bottom: 20, right: 28, zIndex: 9999, display: "flex", flexDirection: "column", gap: 10, pointerEvents: "none" }}>
-      {toasts.map(t => {
+      {toasts.slice(0, 1).map(t => {
         const c = t.type === "success" ? "#00e5a0" : t.type === "warning" ? "#f5c518" : t.type === "danger" ? "#ff4d4d" : "#00c8b0";
         return (
           <div key={t.id} style={{
-            background: "rgba(5, 5, 5, 0.9)", backdropFilter: "blur(10px)", border: `1px solid ${c}44`,
+            background: "rgba(5, 5, 5, 0.9)", backdropFilter: "blur(10px)", border: `1px solid ${c} 44`,
             borderRadius: 12, padding: "14px 18px", width: 320, pointerEvents: "auto",
-            boxShadow: `0 10px 30px rgba(0,0,0,0.5), inset 0 0 10px ${c}11`,
+            boxShadow: `0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 10px ${c} 11`,
             animation: "slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)",
             position: "relative", overflow: "hidden"
           }} onClick={() => onDismiss(t.id)}>
@@ -243,7 +244,7 @@ function RingTimer({ remaining, total, warn, crit }) {
     <svg width="130" height="130" viewBox="0 0 130 130" style={{ filter: `drop-shadow(0 0 14px ${c}44)` }}>
       <circle cx="65" cy="65" r={r} fill="none" stroke="#0d1726" strokeWidth="9" />
       <circle cx="65" cy="65" r={r} fill="none" stroke={c} strokeWidth="9" strokeLinecap="round"
-        strokeDasharray={`${dash} ${circ}`} strokeDashoffset={circ * .25}
+        strokeDasharray={`${dash} ${circ} `} strokeDashoffset={circ * .25}
         style={{ transition: "stroke-dasharray .8s cubic-bezier(.4,0,.2,1),stroke .4s" }} />
       {Array.from({ length: 12 }).map((_, i) => {
         const a = (i / 12 * 360 - 90) * Math.PI / 180;
@@ -259,7 +260,7 @@ function RiskAdaptivePanel({ riskLevel, adaptedTimeout, baseTimeout, factors }) 
   const c = riskLevel === "LOW" ? "#00e5a0" : riskLevel === "MEDIUM" ? "#f5c518" : "#ff4d4d";
   const pct = Math.round((adaptedTimeout / baseTimeout) * 100);
   return (
-    <div className="anim-panel anim-scale-in d3" style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${c}33`, borderRadius: 14, padding: "18px", boxShadow: `inset 0 0 30px ${c}08`, height: "100%" }}>
+    <div className="anim-panel anim-scale-in d3" style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${c} 33`, borderRadius: 14, padding: "18px", boxShadow: `inset 0 0 30px ${c}08`, height: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div style={{ fontSize: 9, letterSpacing: 3, color: "#555" }}>DYNAMIC TIMEOUT</div>
         <Tag c={c}>⬟ {riskLevel}</Tag>
@@ -270,13 +271,13 @@ function RiskAdaptivePanel({ riskLevel, adaptedTimeout, baseTimeout, factors }) 
           <div style={{ fontFamily: "monospace", fontSize: 16, color: "#777" }}>{fmt(baseTimeout)}</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", color: "#444", fontSize: 14 }}>→</div>
-        <div style={{ flex: 1, textAlign: "center", background: `${c}11`, border: `1px solid ${c}33`, borderRadius: 10, padding: "10px" }}>
+        <div style={{ flex: 1, textAlign: "center", background: `${c} 11`, border: `1px solid ${c} 33`, borderRadius: 10, padding: "10px" }}>
           <div style={{ fontSize: 9, color: c, letterSpacing: 1, marginBottom: 4 }}>ADAPTED</div>
           <div style={{ fontFamily: "monospace", fontSize: 16, color: c, fontWeight: 700 }}>{fmt(adaptedTimeout)}</div>
         </div>
       </div>
       <div style={{ height: 4, background: "#111", borderRadius: 2, marginBottom: 14, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${pct}%`, background: c, borderRadius: 2, transition: "width 1s cubic-bezier(0.2, 0.8, 0.2, 1)" }} />
+        <div style={{ height: "100%", width: `${pct}% `, background: c, borderRadius: 2, transition: "width 1s cubic-bezier(0.2, 0.8, 0.2, 1)" }} />
       </div>
       <div style={{ fontSize: 9, color: "#3a5070", letterSpacing: 2, marginBottom: 8 }}>ACTIVE RISK FACTORS</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -336,7 +337,7 @@ function GeoFenceMap({ threatLevel }) {
   ];
   const c = threatLevel === "CLEAR" ? "#00e5a0" : "#ff4d4d";
   return (
-    <div className="anim-panel anim-slide-right d5" style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${c}33`, borderRadius: 14, padding: "18px", height: "100%", display: "flex", flexDirection: "column" }}>
+    <div className="anim-panel anim-slide-right d5" style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${c} 33`, borderRadius: 14, padding: "18px", height: "100%", display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <div style={{ fontSize: 9, letterSpacing: 3, color: "#555" }}>GEO-FENCE TRUST</div>
         <Tag c={c}>{threatLevel === "CLEAR" ? "CLEAR" : "ANOMALY"}</Tag>
@@ -344,10 +345,10 @@ function GeoFenceMap({ threatLevel }) {
       <div style={{ position: "relative", background: "#03060a", borderRadius: 10, overflow: "hidden", flex: 1, border: "1px solid #111823", minHeight: 140 }}>
         <svg width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
           {Array.from({ length: 8 }).map((_, i) => (
-            <line key={`h${i}`} x1="0" y1={`${(i + 1) * 12.5}%`} x2="100%" y2={`${(i + 1) * 12.5}%`} stroke="#1e2d4522" strokeWidth="1" />
+            <line key={`h${i} `} x1="0" y1={`${(i + 1) * 12.5}% `} x2="100%" y2={`${(i + 1) * 12.5}% `} stroke="#1e2d4522" strokeWidth="1" />
           ))}
           {Array.from({ length: 10 }).map((_, i) => (
-            <line key={`v${i}`} x1={`${(i + 1) * 10}%`} y1="0" x2={`${(i + 1) * 10}%`} y2="100%" stroke="#1e2d4522" strokeWidth="1" />
+            <line key={`v${i} `} x1={`${(i + 1) * 10}% `} y1="0" x2={`${(i + 1) * 10}% `} y2="100%" stroke="#1e2d4522" strokeWidth="1" />
           ))}
           {threatLevel !== "CLEAR" && (
             <>
@@ -364,17 +365,17 @@ function GeoFenceMap({ threatLevel }) {
             </radialGradient>
           </defs>
           {zones.filter(z => z.trusted).map((z, i) => (
-            <line key={i} x1="62%" y1="52%" x2={`${z.x}%`} y2={`${z.y}%`} stroke="#00e5a044" strokeWidth="1.5" strokeDasharray="4,4" style={{ animation: "dashMove 2s linear infinite reverse" }} />
+            <line key={i} x1="62%" y1="52%" x2={`${z.x}% `} y2={`${z.y}% `} stroke="#00e5a044" strokeWidth="1.5" strokeDasharray="4,4" style={{ animation: "dashMove 2s linear infinite reverse" }} />
           ))}
           {threatLevel === "CLEAR" && (
             <circle cx="62%" cy="52%" r="25%" fill="none" stroke="#00e5a0" strokeWidth="1" opacity="0.1" style={{ animation: "ping 3s ease-out infinite" }} />
           )}
           {zones.map((z, i) => (
             <g key={i} className="hover-zone" style={{ cursor: "pointer", transition: "all 0.2s" }}>
-              <circle cx={`${z.x}%`} cy={`${z.y}%`} r={z.r} fill={`${z.c}22`} stroke={z.c} strokeWidth="1.5" style={{ transition: "r 0.2s" }} />
-              {z.you && <circle cx={`${z.x}%`} cy={`${z.y}%`} r="3.5" fill={z.c} />}
-              {!z.trusted && threatLevel !== "CLEAR" && <text x={`${z.x}%`} y={`${z.y}%`} textAnchor="middle" dominantBaseline="middle" fontSize="10">⚠</text>}
-              <text x={`${z.x}%`} y={`${z.y + 12}%`} textAnchor="middle" fill={z.c} fontSize="8" fontFamily="monospace" opacity="0.8">{z.name}</text>
+              <circle cx={`${z.x}% `} cy={`${z.y}% `} r={z.r} fill={`${z.c} 22`} stroke={z.c} strokeWidth="1.5" style={{ transition: "r 0.2s" }} />
+              {z.you && <circle cx={`${z.x}% `} cy={`${z.y}% `} r="3.5" fill={z.c} />}
+              {!z.trusted && threatLevel !== "CLEAR" && <text x={`${z.x}% `} y={`${z.y}% `} textAnchor="middle" dominantBaseline="middle" fontSize="10">⚠</text>}
+              <text x={`${z.x}% `} y={`${z.y + 12}% `} textAnchor="middle" fill={z.c} fontSize="8" fontFamily="monospace" opacity="0.8">{z.name}</text>
             </g>
           ))}
         </svg>
@@ -392,15 +393,15 @@ function ReplayTimeline({ events, scrub, onScrub }) {
       </div>
       <div style={{ position: "relative", marginBottom: 16 }}>
         <div style={{ height: 4, background: "#050910", borderRadius: 2, position: "relative", border: "1px solid #111823" }}>
-          <div style={{ height: "100%", width: `${scrub}%`, background: "linear-gradient(90deg,#0088ff,#00e5a0)", borderRadius: 2, transition: "width .1s", boxShadow: "0 0 15px #00e5a066" }} />
+          <div style={{ height: "100%", width: `${scrub}% `, background: "linear-gradient(90deg,#0088ff,#00e5a0)", borderRadius: 2, transition: "width .1s", boxShadow: "0 0 15px #00e5a066" }} />
           {events.map((e, i) => {
             const tc = e.type === "success" ? "#00e5a0" : e.type === "warn" ? "#f5c518" : e.type === "now" ? "#fff" : "#5a7a9a";
             return (
               <div key={i} title={e.label} style={{
-                position: "absolute", left: `${e.pct}%`, top: "50%", transform: "translate(-50%,-50%)",
+                position: "absolute", left: `${e.pct}% `, top: "50%", transform: "translate(-50%,-50%)",
                 width: e.type === "now" ? 12 : 8, height: e.type === "now" ? 12 : 8,
                 borderRadius: "50%", background: tc, cursor: "pointer",
-                boxShadow: `0 0 8px ${tc}`, border: `2px solid #000`, zIndex: 2,
+                boxShadow: `0 0 8px ${tc} `, border: `2px solid #000`, zIndex: 2,
                 transition: "transform 0.2s"
               }} className="hover-scale" />
             );
@@ -414,11 +415,11 @@ function ReplayTimeline({ events, scrub, onScrub }) {
           const shouldShow = Math.abs(e.pct - scrub) < 15 || e.type === "now";
           return (
             <div key={i} style={{
-              position: "absolute", left: `${e.pct}%`, transform: "translateX(-50%)",
+              position: "absolute", left: `${e.pct}% `, transform: "translateX(-50%)",
               textAlign: "center", transition: "opacity .3s, transform 0.3s",
               opacity: shouldShow ? 1 : 0, pointerEvents: "none"
             }}>
-              <div style={{ fontSize: 13, filter: `drop-shadow(0 0 4px ${tc}88)` }}>{e.icon}</div>
+              <div style={{ fontSize: 13, filter: `drop - shadow(0 0 4px ${tc}88)` }}>{e.icon}</div>
               <div style={{ fontSize: 8, color: tc, letterSpacing: .5, whiteSpace: "nowrap", fontWeight: 600, marginTop: 2 }}>{e.label}</div>
             </div>
           );
@@ -590,7 +591,7 @@ function AuditLogView({ logs }) {
   const handleExport = () => {
     setExporting(true);
     setTimeout(() => {
-      const csv = "TIME,SEVERITY,MESSAGE\n" + filtered.map(l => `${l.t || l.time},${l.type.toUpperCase()},"${l.msg}"`).join("\n");
+      const csv = "TIME,SEVERITY,MESSAGE\n" + filtered.map(l => `${l.t || l.time},${l.type.toUpperCase()}, "${l.msg}"`).join("\n");
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -675,7 +676,7 @@ function CompareView() {
           { name: "Ping ID", score: 6, c: "#f5c518", label: "Enterprise" },
           { name: "AWS Cognito", score: 5, c: "#5a7a9a", label: "Cloud Native" },
         ].map(s => (
-          <div key={s.name} style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${s.c}33`, borderRadius: 14, padding: "20px", textAlign: "center", boxShadow: `inset 0 0 20px ${s.c}0a` }}>
+          <div key={s.name} style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${s.c} 33`, borderRadius: 14, padding: "20px", textAlign: "center", boxShadow: `inset 0 0 20px ${s.c} 0a` }}>
             <div style={{ fontSize: 32, fontWeight: 800, color: s.c, fontFamily: "'JetBrains Mono',monospace", marginBottom: 4 }}>{s.score}<span style={{ fontSize: 16, color: "#555" }}>/10</span></div>
             <div style={{ fontSize: 13, color: "#fff", fontWeight: 700, marginBottom: 4 }}>{s.name}</div>
             <div style={{ fontSize: 10, color: "#5a7a9a", letterSpacing: 1 }}>{s.label.toUpperCase()}</div>
@@ -693,7 +694,7 @@ function CompareView() {
                   <th key={c} style={{
                     padding: "14px 20px", textAlign: "left", fontSize: 10, letterSpacing: 1.5,
                     color: i === 1 ? "#00e5a0" : "#4a6080",
-                    borderBottom: `1px solid ${i === 1 ? "#00e5a033" : "#1e2d45"}`,
+                    borderBottom: `1px solid ${i === 1 ? "#00e5a033" : "#1e2d45"} `,
                     background: i === 1 ? "#00e5a008" : "transparent",
                     whiteSpace: "nowrap"
                   }}>{c}</th>
@@ -749,7 +750,7 @@ function TechStackView() {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginBottom: 32 }}>
         {TECH_STACK.map((s, i) => (
-          <div key={i} className={`anim-panel anim-scale-in d${i + 1}`} style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${s.c}33`, borderRadius: 14, padding: "24px", boxShadow: `inset 0 0 15px ${s.c}0a` }}>
+          <div key={i} className={`anim - panel anim - scale -in d${i + 1} `} style={{ background: "rgba(10, 21, 32, 0.6)", backdropFilter: "blur(12px)", border: `1px solid ${s.c} 33`, borderRadius: 14, padding: "24px", boxShadow: `inset 0 0 15px ${s.c} 0a` }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
               <Dot c={s.c} pulse={false} />
               <span style={{ fontSize: 9, letterSpacing: 2, color: s.c }}>{s.layer.toUpperCase()}</span>
@@ -771,7 +772,7 @@ function TechStackView() {
             { label: "Redis State", c: "#ff4d4d", icon: "💾" },
           ].map((n, i, arr) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ padding: "12px 20px", borderRadius: 12, background: `${n.c}11`, border: `1px solid ${n.c}44`, color: n.c, fontSize: 12, fontWeight: 600, display: "flex", gap: 8, alignItems: "center", boxShadow: `0 0 10px ${n.c}22` }}>
+              <div style={{ padding: "12px 20px", borderRadius: 12, background: `${n.c} 11`, border: `1px solid ${n.c} 44`, color: n.c, fontSize: 12, fontWeight: 600, display: "flex", gap: 8, alignItems: "center", boxShadow: `0 0 10px ${n.c} 22` }}>
                 <span>{n.icon}</span><span>{n.label}</span>
               </div>
               {i < arr.length - 1 && <span style={{ color: "#3a5070", fontSize: 20 }}>→</span>}
@@ -786,18 +787,17 @@ function TechStackView() {
 // ─── MAIN APP PAGE ────────────────────────────────────────────────────────────
 
 export default function App() {
-  let session;
+  let session = null;
   try {
-    const { useSessionEngine } = require("./SessionProvider");
     session = useSessionEngine();
   } catch (e) {
     console.warn("[NexusDashboard] SessionProvider not available, using fallbacks", e);
-    session = null;
   }
 
   const [view, setView] = useState("dashboard");
   const [scrub, setScrub] = useState(100);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notifHistory, setNotifHistory] = useState([]);
 
   // Fallbacks if SessionProvider is not wrapped correctly
   const wsConnected = session?.wsConnected ?? false;
@@ -829,31 +829,31 @@ export default function App() {
   const updatePolicies = session?.updatePolicies ?? (() => { });
   const toasty = session?.notifications ?? [];
 
-  // ── Client-side 1-second timer interpolation ──
-  // WS sends remaining every 2s; we interpolate 1s ticks in between.
-  // WS value is AUTHORITATIVE — always sync to it.
+  // Accumulate notifications into persistent history
+  useEffect(() => {
+    if (toasty.length > 0) {
+      setNotifHistory(prev => {
+        const merged = [...toasty.map(n => ({ ...n, ts: Date.now() })), ...prev];
+        return merged.slice(0, 25);
+      });
+    }
+  }, [JSON.stringify(toasty)]);
+
+  // ── Timer: WS sends remaining every 1s — no client interpolation needed ──
   const [displayRemaining, setDisplayRemaining] = useState(wsRemaining);
   const lastWsRef = useRef(wsRemaining);
 
-  // Sync with WS updates — always trust the backend
+  // Sync directly with WS (server ticks every 1s now)
   useEffect(() => {
     lastWsRef.current = wsRemaining;
     setDisplayRemaining(wsRemaining);
   }, [wsRemaining]);
 
-  // Client-side 1-second countdown between WS ticks
-  useEffect(() => {
-    const tick = setInterval(() => {
-      setDisplayRemaining(prev => Math.max(0, prev - 1));
-    }, 1000);
-    return () => clearInterval(tick);
-  }, []);
-
   // Wrapped extend — optimistic UI update + backend call
   const extend = () => {
     const target = adaptedTimeout;
     setDisplayRemaining(target);
-    lastWsRef.current = target; // prevent next stale WS tick from overriding
+    lastWsRef.current = target;
     sessionExtend();
   };
 
@@ -864,31 +864,31 @@ export default function App() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-        body{background:#000000;font-family:'Syne',sans-serif;overflow-x:hidden;}
-        ::-webkit-scrollbar{width:6px;height:6px;}
-        ::-webkit-scrollbar-track{background:#050910;}
-        ::-webkit-scrollbar-thumb{background:#1e2d45;border-radius:3px;}
-        ::-webkit-scrollbar-thumb:hover{background:#3a5070;}
-        
-        @keyframes ping{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.4);opacity:0}}
-        @keyframes scanline { 0% { transform: translateY(-100%); opacity: 0; } 50% { opacity: 0.1; } 100% { transform: translateY(100vh); opacity: 0; } }
-        @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 50px 50px; } }
-        @keyframes subtleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-        @keyframes orbFloat1 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(10vw, 15vh) scale(1.1); } }
-        @keyframes orbFloat2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-10vw, -15vh) scale(1.1); } }
-        
-        @keyframes staggerSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes staggerScaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        @keyframes staggerSlideLeft { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes staggerSlideRight { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes flashValue { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes shrinkWidth { from { width: "100%"; } to { width: "0%"; } }
-        @keyframes scaleInTopRight { from { opacity: 0; transform: scale(0.95) translate(10px, -10px); } to { opacity: 1; transform: scale(1) translate(0, 0); } }
-        @keyframes dashMove { to { stroke-dashoffset: -8; } }
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+        *,*:: before,*::after{ box-sizing: border-box; margin: 0; padding: 0; }
+        body{ background:#000000; font-family: 'Syne', sans-serif; overflow-x: hidden; }
+        :: -webkit-scrollbar{ width: 6px; height: 6px; }
+        :: -webkit-scrollbar-track{ background:#050910; }
+        :: -webkit-scrollbar-thumb{ background:#1e2d45; border-radius: 3px; }
+        :: -webkit-scrollbar-thumb:hover{ background:#3a5070; }
+
+@keyframes ping{ 0% { transform: scale(1); opacity: .8 }100% { transform: scale(2.4); opacity: 0 } }
+@keyframes scanline { 0% { transform: translateY(-100%); opacity: 0; } 50% { opacity: 0.1; } 100% { transform: translateY(100vh); opacity: 0; } }
+@keyframes gridMove { 0% { background- position: 0 0; } 100% { background- position: 50px 50px; } }
+@keyframes subtleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes orbFloat1 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(10vw, 15vh) scale(1.1); } }
+@keyframes orbFloat2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-10vw, -15vh) scale(1.1); } }
+
+@keyframes staggerSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes staggerScaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes staggerSlideLeft { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes staggerSlideRight { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes flashValue { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes shrinkWidth { from { width: "100%"; } to { width: "0%"; } }
+@keyframes scaleInTopRight { from { opacity: 0; transform: scale(0.95) translate(10px, -10px); } to { opacity: 1; transform: scale(1) translate(0, 0); } }
+@keyframes dashMove { to { stroke-dashoffset: -8; } }
 
         .anim-panel { opacity: 0; animation-fill-mode: forwards; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
         .anim-slide-up { animation-name: staggerSlideUp; animation-duration: .7s; }
@@ -899,14 +899,14 @@ export default function App() {
         .d3 { animation-delay: .3s; } .d4 { animation-delay: .4s; } .d5 { animation-delay: .5s; }
         .d6 { animation-delay: .6s; } .d7 { animation-delay: .7s; }
 
-        .vnav-btn { background:none; border:none; cursor:pointer; padding:8px 18px; border-radius:8px; font-family:'Syne',sans-serif; font-size:11px; letter-spacing:1.5px; transition:all .3s; white-space:nowrap; font-weight:600; }
-        .vnav-btn.on { background:rgba(0, 229, 160, 0.1); color:#00e5a0; box-shadow: 0 0 20px rgba(0,229,160,0.15); border: 1px solid rgba(0,229,160,0.3); }
+        .vnav-btn { background: none; border: none; cursor: pointer; padding: 8px 18px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 1.5px; transition:all .3s; white-space: nowrap; font-weight: 600; }
+        .vnav-btn.on { background: rgba(0, 229, 160, 0.1); color:#00e5a0; box-shadow: 0 0 20px rgba(0, 229, 160, 0.15); border: 1px solid rgba(0, 229, 160, 0.3); }
         .vnav-btn.off { color:#7a9ab0; border: 1px solid transparent; }
-        .vnav-btn.off:hover { color:#fff; background: rgba(255,255,255,0.05); }
+        .vnav-btn.off:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
 
         .hover-btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
-        .txn-row:hover { background: rgba(0, 229, 160, 0.05) !important; box-shadow: inset 0 0 10px rgba(0,229,160,0.1); }
-      `}</style>
+        .txn-row:hover { background: rgba(0, 229, 160, 0.05)!important; box-shadow: inset 0 0 10px rgba(0, 229, 160, 0.1); }
+`}</style>
 
       {/* Background Effects */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none", zIndex: 0, background: "radial-gradient(ellipse at top, #0a1120 0%, #000000 70%)" }} />
@@ -922,7 +922,7 @@ export default function App() {
         <div style={{
           position: "fixed", top: 64, left: 0, right: 0, zIndex: 200, padding: "12px 28px",
           background: crit ? "linear-gradient(90deg, rgba(255,20,20,0.2), rgba(255,77,77,0.1))" : "linear-gradient(90deg, rgba(245,197,24,0.15), rgba(255,160,0,0.08))",
-          borderBottom: `2px solid ${tc}66`, backdropFilter: "blur(8px)",
+          borderBottom: `2px solid ${tc} 66`, backdropFilter: "blur(8px)",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           animation: crit ? "flashValue 1s infinite" : "none"
         }}>
@@ -938,9 +938,9 @@ export default function App() {
             </div>
           </div>
           <button onClick={extend} className="hover-btn" style={{
-            padding: "10px 24px", background: `${tc}22`, border: `1px solid ${tc}66`, color: tc,
+            padding: "10px 24px", background: `${tc} 22`, border: `1px solid ${tc} 66`, color: tc,
             borderRadius: 8, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, cursor: "pointer",
-            boxShadow: `0 0 20px ${tc}33`, transition: "all 0.2s"
+            boxShadow: `0 0 20px ${tc} 33`, transition: "all 0.2s"
           }}>EXTEND NOW</button>
         </div>
       )}
@@ -959,20 +959,20 @@ export default function App() {
 
           <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.5)", borderRadius: 10, padding: 4, border: "1px solid rgba(255,255,255,0.05)", overflowX: "auto" }}>
             {[{ id: "dashboard", l: "DASHBOARD" }, { id: "policies", l: "POLICIES" }, { id: "audit", l: "AUDIT LOG" }, { id: "compare", l: "COMPARISON" }, { id: "techstack", l: "ARCHITECTURE" }].map(v => (
-              <button key={v.id} className={`vnav-btn ${view === v.id ? "on" : "off"}`} onClick={() => setView(v.id)}>{v.l}</button>
+              <button key={v.id} className={`vnav - btn ${view === v.id ? "on" : "off"} `} onClick={() => setView(v.id)}>{v.l}</button>
             ))}
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 14px", borderRadius: 20, background: wsConnected ? "rgba(0,229,160,0.08)" : "rgba(245,197,24,0.08)", border: `1px solid ${wsConnected ? "rgba(0,229,160,0.3)" : "rgba(245,197,24,0.3)"}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 14px", borderRadius: 20, background: wsConnected ? "rgba(0,229,160,0.08)" : "rgba(245,197,24,0.08)", border: `1px solid ${wsConnected ? "rgba(0,229,160,0.3)" : "rgba(245,197,24,0.3)"} ` }}>
               <Dot c={wsConnected ? "#00e5a0" : "#f5c518"} pulse={wsConnected} />
               <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: wsConnected ? "#00e5a0" : "#f5c518", fontFamily: "'JetBrains Mono',monospace" }}>{wsConnected ? "LIVE DATA" : "SIMULATED"}</span>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "6px 16px", background: "rgba(0,0,0,0.5)", border: `1px solid ${tc}55`, borderRadius: 20, boxShadow: `0 0 20px ${tc}15` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "6px 16px", background: "rgba(0,0,0,0.5)", border: `1px solid ${tc} 55`, borderRadius: 20, boxShadow: `0 0 20px ${tc} 15` }}>
               <span style={{ fontSize: 9, color: "#7a9ab0", letterSpacing: 2 }}>SESSION</span>
               <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 14, fontWeight: 800, color: tc, animation: crit ? "flashValue .6s infinite" : "none" }}>{fmt(remaining)}</span>
-              <button onClick={extend} className="hover-btn" style={{ background: `${tc}15`, border: `1px solid ${tc}44`, color: tc, borderRadius: 6, padding: "3px 10px", fontSize: 9, fontWeight: 700, letterSpacing: 1.5, cursor: "pointer", transition: "all .2s" }}>EXTEND</button>
+              <button onClick={extend} className="hover-btn" style={{ background: `${tc} 15`, border: `1px solid ${tc} 44`, color: tc, borderRadius: 6, padding: "3px 10px", fontSize: 9, fontWeight: 700, letterSpacing: 1.5, cursor: "pointer", transition: "all .2s" }}>EXTEND</button>
             </div>
 
             <div style={{ position: "relative" }}>
@@ -991,7 +991,7 @@ export default function App() {
             {/* Top Row: Visualizations */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
               {/* Session Integrity */}
-              <div className="anim-panel anim-scale-in d0" style={{ background: "rgba(10,21,32,0.6)", backdropFilter: "blur(12px)", border: `1px solid ${tc}33`, borderRadius: 14, padding: "24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", boxShadow: `inset 0 0 40px ${tc}0a` }}>
+              <div className="anim-panel anim-scale-in d0" style={{ background: "rgba(10,21,32,0.6)", backdropFilter: "blur(12px)", border: `1px solid ${tc} 33`, borderRadius: 14, padding: "24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", boxShadow: `inset 0 0 40px ${tc} 0a` }}>
                 <div style={{ fontSize: 9, letterSpacing: 3, color: "#555", marginBottom: 16 }}>SESSION INTEGRITY</div>
                 <RingTimer remaining={remaining} total={120} warn={warn} crit={crit} />
                 <div style={{ marginTop: 20, width: "100%", display: "flex", justifyContent: "space-between", background: "rgba(0,0,0,0.3)", padding: "10px 16px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.05)" }}>
@@ -1022,7 +1022,7 @@ export default function App() {
                   const pLabel = posture >= 80 ? "STRONG" : posture >= 60 ? "MODERATE" : "WEAK";
                   return (
                     <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                      <div style={{ fontSize: 48, fontWeight: 900, color: pColor, fontFamily: "'JetBrains Mono',monospace", lineHeight: 1, textShadow: `0 0 30px ${pColor}44` }}>{posture}</div>
+                      <div style={{ fontSize: 48, fontWeight: 900, color: pColor, fontFamily: "'JetBrains Mono',monospace", lineHeight: 1, textShadow: `0 0 30px ${pColor} 44` }}>{posture}</div>
                       <Tag c={pColor} style={{ marginTop: 8 }}>{pLabel}</Tag>
                       <div style={{ width: "100%", marginTop: 16, display: "flex", flexDirection: "column", gap: 6 }}>
                         {[
@@ -1034,7 +1034,7 @@ export default function App() {
                           <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <span style={{ fontSize: 9, color: "#5a7a9a", width: 55, textAlign: "right" }}>{r.label}</span>
                             <div style={{ flex: 1, height: 4, background: "#0a1520", borderRadius: 2, overflow: "hidden" }}>
-                              <div style={{ width: `${r.val}%`, height: "100%", background: r.val >= 80 ? "#00e5a0" : r.val >= 60 ? "#f5c518" : "#ff4d4d", borderRadius: 2, transition: "width 0.5s" }} />
+                              <div style={{ width: `${r.val}% `, height: "100%", background: r.val >= 80 ? "#00e5a0" : r.val >= 60 ? "#f5c518" : "#ff4d4d", borderRadius: 2, transition: "width 0.5s" }} />
                             </div>
                             <span style={{ fontSize: 9, color: "#7a9ab0", fontFamily: "monospace", width: 24 }}>{r.val}</span>
                           </div>
@@ -1097,7 +1097,7 @@ export default function App() {
                             <span style={{ fontSize: 9, color: "#5a7a9a", width: 70 }}>{a.label}</span>
                             <div style={{ flex: 1, height: 6, background: "#0a1520", borderRadius: 3, overflow: "hidden" }}>
                               <div style={{
-                                width: `${a.val}%`, height: "100%", borderRadius: 3, transition: "width 0.5s ease",
+                                width: `${a.val}% `, height: "100%", borderRadius: 3, transition: "width 0.5s ease",
                                 background: a.val >= 75 ? "linear-gradient(90deg, #00e5a0, #00c8b0)" : a.val >= 50 ? "linear-gradient(90deg, #f5c518, #ffaa00)" : "linear-gradient(90deg, #ff4d4d, #ff2020)"
                               }} />
                             </div>
@@ -1127,7 +1127,7 @@ export default function App() {
                           <span style={{ fontSize: 11, color: fc, fontFamily: "monospace", fontWeight: 700 }}>{f.delta > 0 ? "+" : ""}{f.delta}s</span>
                         </div>
                         <div style={{ height: 3, background: "#0a1520", borderRadius: 2, overflow: "hidden" }}>
-                          <div style={{ width: `${pct}%`, height: "100%", background: fc, borderRadius: 2, transition: "width 0.5s" }} />
+                          <div style={{ width: `${pct}% `, height: "100%", background: fc, borderRadius: 2, transition: "width 0.5s" }} />
                         </div>
                         <div style={{ fontSize: 8, color: "#4a6080", marginTop: 4 }}>{f.impact}</div>
                       </div>
@@ -1160,6 +1160,46 @@ export default function App() {
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <ReplayTimeline events={liveTimeline} scrub={scrub} onScrub={setScrub} />
                 <TransactionsTable txns={liveTxns} />
+              </div>
+            </div>
+
+            {/* ── NOTIFICATION FEED ── */}
+            <div className="anim-panel anim-slide-up d3" style={{ background: "rgba(10,21,32,0.6)", backdropFilter: "blur(12px)", border: "1px solid #1e2d45", borderRadius: 14, padding: "20px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 18 }}>🔔</span>
+                  <span style={{ fontSize: 9, letterSpacing: 3, color: "#555" }}>LIVE NOTIFICATIONS</span>
+                  {notifHistory.length > 0 && (
+                    <span style={{ background: "#ff4d4d", color: "#fff", fontSize: 10, fontWeight: 800, borderRadius: 10, padding: "2px 8px", fontFamily: "monospace" }}>{notifHistory.length}</span>
+                  )}
+                </div>
+                {notifHistory.length > 0 && (
+                  <button onClick={() => setNotifHistory([])} style={{ background: "rgba(255,77,77,0.1)", border: "1px solid #ff4d4d33", color: "#ff4d4d", borderRadius: 6, padding: "4px 12px", fontSize: 9, fontWeight: 700, letterSpacing: 1, cursor: "pointer" }}>CLEAR ALL</button>
+                )}
+              </div>
+              <div style={{ maxHeight: 220, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
+                {notifHistory.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: 30, color: "#3a5070" }}>
+                    <div style={{ fontSize: 28, opacity: 0.3, marginBottom: 8 }}>🔕</div>
+                    <div style={{ fontSize: 11 }}>No notifications yet</div>
+                    <div style={{ fontSize: 9, color: "#2a4060", marginTop: 4 }}>Events will appear here in real-time</div>
+                  </div>
+                ) : notifHistory.map((n, i) => {
+                  const nc = n.type === "success" ? "#00e5a0" : n.type === "warning" ? "#f5c518" : n.type === "danger" ? "#ff4d4d" : "#0088ff";
+                  const icon = n.type === "success" ? "✅" : n.type === "warning" ? "⚠️" : n.type === "danger" ? "🚨" : "ℹ️";
+                  return (
+                    <div key={`${n.id} -${i} `} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "10px 14px", background: `${nc}08`, border: `1px solid ${nc} 22`, borderRadius: 10, animation: i === 0 ? "slideInRight 0.3s ease" : "none" }}>
+                      <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2 }}>{icon}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: nc }}>{n.title}</span>
+                          <span style={{ fontSize: 9, color: "#4a6080", fontFamily: "monospace", flexShrink: 0 }}>{n.time}</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: "#8aa0b8", lineHeight: 1.4 }}>{n.message}</div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
