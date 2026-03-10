@@ -183,11 +183,9 @@ async def websocket_real_engine(websocket: WebSocket, session_id: str):
 
                 if evt == "mousemove":
                     last_mouse = time.time()
-                    remaining = max(remaining, adapted_timeout)
 
                 elif evt == "keydown":
                     last_key = time.time()
-                    remaining = max(remaining, adapted_timeout)
 
                 elif evt == "click":
                     last_mouse = time.time()
@@ -208,7 +206,6 @@ async def websocket_real_engine(websocket: WebSocket, session_id: str):
                 elif evt == "ACTIVITY":
                     last_mouse = time.time()
                     last_key = time.time()
-                    remaining = max(remaining, adapted_timeout)
 
                 elif evt == "TAB_OPEN":
                     tid = msg.get("tabId", f"tab-{tab_count + 1}")
@@ -300,9 +297,21 @@ async def websocket_real_engine(websocket: WebSocket, session_id: str):
                 risk_factors = res.active_factors
 
             # ── 4. Countdown (1 per second) ──
-            remaining = max(0, remaining - 1)
-            if remaining <= 0:
+            if min_idle < 2:
                 remaining = adapted_timeout
+            else:
+                remaining = max(0, remaining - 1)
+            
+            if remaining > adapted_timeout:
+                remaining = adapted_timeout
+            if remaining <= 0:
+                asyncio.create_task(_persist_log(session_id, "Session terminated due to timeout", "danger"))
+                try:
+                    await websocket.send_text(json.dumps({"forceLogout": True}))
+                    await asyncio.sleep(0.5)
+                except Exception:
+                    pass
+                break
 
             # ── 5. DB reads — cached, refreshed every 4s ──
             if tick % 4 == 0:

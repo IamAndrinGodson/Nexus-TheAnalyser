@@ -197,6 +197,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                 try {
                     const data = JSON.parse(event.data);
 
+                    if (data.forceLogout) {
+                        window.location.href = "/auth/logout-summary";
+                        return;
+                    }
+
                     if (data.remaining !== undefined) setRemaining(data.remaining);
                     if (data.adaptedTimeout !== undefined) setAdaptedTimeout(data.adaptedTimeout);
                     if (data.riskLevel) setRiskLevel(data.riskLevel);
@@ -259,17 +264,27 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setIsActive(true);
     }, [adaptedTimeout]);
 
+    const lastWsPing = useRef<number>(0);
+
     useEffect(() => {
         const handler = (ev: Event) => {
             if (debounceRef.current) clearTimeout(debounceRef.current);
             debounceRef.current = setTimeout(resetTimer, ACTIVITY_DEBOUNCE);
 
-            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-                if (ev.type === "mousemove") {
-                    const me = ev as MouseEvent;
-                    wsRef.current.send(JSON.stringify({ type: "mousemove", x: me.clientX, y: me.clientY, timestamp: Date.now() }));
-                } else if (ev.type === "keydown") {
-                    wsRef.current.send(JSON.stringify({ type: "keydown", timestamp: Date.now() }));
+            const now = Date.now();
+            if (now - lastWsPing.current > 1000) {
+                if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                    if (ev.type === "mousemove") {
+                        const me = ev as MouseEvent;
+                        wsRef.current.send(JSON.stringify({ type: "mousemove", x: me.clientX, y: me.clientY, timestamp: now }));
+                        lastWsPing.current = now;
+                    } else if (ev.type === "keydown") {
+                        wsRef.current.send(JSON.stringify({ type: "keydown", timestamp: now }));
+                        lastWsPing.current = now;
+                    } else if (ev.type === "click") {
+                        wsRef.current.send(JSON.stringify({ type: "click", timestamp: now }));
+                        lastWsPing.current = now;
+                    }
                 }
             }
 

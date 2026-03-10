@@ -899,10 +899,9 @@ export default function App() {
         .d3 { animation-delay: .3s; } .d4 { animation-delay: .4s; } .d5 { animation-delay: .5s; }
         .d6 { animation-delay: .6s; } .d7 { animation-delay: .7s; }
 
-        .vnav-btn { background: none; border: none; cursor: pointer; padding: 8px 18px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 1.5px; transition:all .3s; white-space: nowrap; font-weight: 600; }
-        .vnav-btn.on { background: rgba(0, 229, 160, 0.1); color:#00e5a0; box-shadow: 0 0 20px rgba(0, 229, 160, 0.15); border: 1px solid rgba(0, 229, 160, 0.3); }
-        .vnav-btn.off { color:#7a9ab0; border: 1px solid transparent; }
-        .vnav-btn.off:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .vnav-btn { position: relative; background: transparent; border: none; cursor: pointer; padding: 10px 16px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; transition: all 0.3s; white-space: nowrap; font-weight: 700; color: #5a7a9a; border-bottom: 2px solid transparent; }
+        .vnav-btn.on { color: #00e5a0; border-bottom: 2px solid #00e5a0; text-shadow: 0 0 10px rgba(0,229,160,0.4); background: linear-gradient(to top, rgba(0,229,160,0.1) 0%, transparent 80%); }
+        .vnav-btn.off:hover { color: #a0c0d8; border-bottom: 2px solid #3a5070; background: linear-gradient(to top, rgba(255,255,255,0.02) 0%, transparent 80%); }
 
         .hover-btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
         .txn-row:hover { background: rgba(0, 229, 160, 0.05)!important; box-shadow: inset 0 0 10px rgba(0, 229, 160, 0.1); }
@@ -957,9 +956,9 @@ export default function App() {
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.5)", borderRadius: 10, padding: 4, border: "1px solid rgba(255,255,255,0.05)", overflowX: "auto" }}>
+          <div style={{ display: "flex", gap: 2, background: "rgba(10, 21, 32, 0.4)", borderRadius: 8, padding: 4, border: "1px solid #1e2d45", boxShadow: "inset 0 0 20px rgba(0,0,0,0.5)", overflowX: "auto" }}>
             {[{ id: "dashboard", l: "DASHBOARD" }, { id: "policies", l: "POLICIES" }, { id: "audit", l: "AUDIT LOG" }, { id: "compare", l: "COMPARISON" }, { id: "techstack", l: "ARCHITECTURE" }].map(v => (
-              <button key={v.id} className={`vnav - btn ${view === v.id ? "on" : "off"} `} onClick={() => setView(v.id)}>{v.l}</button>
+              <button key={v.id} className={`vnav-btn ${view === v.id ? "on" : "off"}`} onClick={() => setView(v.id)}>{v.l}</button>
             ))}
           </div>
 
