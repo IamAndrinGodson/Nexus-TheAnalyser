@@ -24,7 +24,7 @@ export default function RegisterPage() {
         }
 
         try {
-            const res = await fetch("http://localhost:8000/api/auth/register", {
+            const res = await fetch("/api/backend/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -35,18 +35,31 @@ export default function RegisterPage() {
                 }),
             });
 
+            // Handle non-JSON responses (e.g. HTML redirect from middleware)
+            const contentType = res.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                console.error("Non-JSON response:", res.status, res.statusText);
+                setError(`Server returned non-JSON response (${res.status}). Please try again.`);
+                return;
+            }
+
             const data = await res.json();
 
             if (!res.ok) {
-                setError(data.detail || "Failed to register.");
+                setError(data.detail || `Registration failed (${res.status}).`);
             } else {
                 setSuccess(true);
                 setTimeout(() => {
                     window.location.href = "/auth/login";
                 }, 2000);
             }
-        } catch {
-            setError("An unexpected error occurred.");
+        } catch (err: any) {
+            console.error("Registration error:", err);
+            if (err.message?.includes("fetch")) {
+                setError("Cannot connect to server. Is the backend running?");
+            } else {
+                setError(err.message || "An unexpected error occurred.");
+            }
         } finally {
             setLoading(false);
         }

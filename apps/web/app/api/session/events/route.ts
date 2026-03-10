@@ -12,7 +12,9 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        const res = await fetch("http://localhost:8000/api/events/ingest", {
+        const API_URL = process.env.RISK_API_URL || "http://localhost:8000";
+
+        const res = await fetch(`${API_URL}/api/events/ingest`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -43,7 +45,9 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const sessionId = searchParams.get("session_id") || session.sessionId;
 
-        const res = await fetch(`http://localhost:8000/api/events/timeline/${sessionId}`, {
+        const API_URL = process.env.RISK_API_URL || "http://localhost:8000";
+
+        const res = await fetch(`${API_URL}/api/events/timeline/${sessionId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
