@@ -4,8 +4,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
 export async function POST(request: Request) {
+    console.log("HEARTBEAT - Checking Session...");
     const session = await getServerSession(authOptions) as any;
     if (!session || !session.backendToken) {
+        console.log("HEARTBEAT - No session or backendToken found!", { hasSession: !!session });
         return NextResponse.json({ valid: false }, { status: 401 });
     }
 

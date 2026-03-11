@@ -51,7 +51,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <SessionProvider>
+        <SessionProvider isAdmin={isAdmin}>
             {isAdmin ? <ServerAdminDashboard /> : <NexusDashboard />}
         </SessionProvider>
     );

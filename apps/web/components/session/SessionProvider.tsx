@@ -148,7 +148,7 @@ function getOrCreateTabId(): string {
     return id;
 }
 
-export function SessionProvider({ children }: { children: ReactNode }) {
+export function SessionProvider({ children, isAdmin = false }: { children: ReactNode, isAdmin?: boolean }) {
     const pathname = usePathname();
     const [expiresAt, setExpiresAt] = useState(Date.now() + BASE_TIMEOUT * 1000);
     const [remaining, setRemaining] = useState(BASE_TIMEOUT);
@@ -234,10 +234,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             ws.onopen = () => {
                 setWsConnected(true);
                 const tabId = tabIdRef.current;
-
-                // Admin detection: use ONLY the env var, NOT window.location.port
-                // Using port number fails over Ngrok (port is 443 / empty)
-                const isAdmin = process.env.NEXT_PUBLIC_IS_SERVER === "true";
 
                 if (isAdmin) {
                     console.log("[NEXUS WS] Admin Dashboard Connected");
