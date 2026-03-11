@@ -44,10 +44,10 @@ function ExecutiveStrip({ stats }) {
   return (
     <div style={{ display: "flex", gap: 20, padding: "12px 28px", background: "#050910", borderBottom: "1px solid #1a2332", overflowX: "auto" }}>
       {kpis.map((k, i) => (
-          <div key={i} style={{ display: "flex", flexDirection: "column", minWidth: 100 }}>
+          <div key={i} className="kpi-card" style={{ display: "flex", flexDirection: "column", minWidth: 100 }}>
             <span style={{ fontSize: 8, letterSpacing: 2, color: "#3a5070", marginBottom: 4 }}>{k.label}</span>
-            <span style={{
-              fontSize: 16, fontWeight: 800, color: k.c, fontFamily: "'JetBrains Mono',monospace",
+            <span key={k.val} className="flash-update" style={{
+              fontSize: 16, fontWeight: 800, color: k.c, fontFamily: "'JetBrains Mono',monospace", display: "inline-block"
             }}>{k.val}</span>
           </div>
         ))}
@@ -234,7 +234,7 @@ function RingTimer({ remaining, total, warn, crit }) {
   const pct = remaining / total, dash = circ * pct;
   const c = crit ? "#ff4d4d" : warn ? "#f5c518" : "#00e5a0";
   return (
-    <svg width="130" height="130" viewBox="0 0 130 130" style={{ filter: `drop-shadow(0 0 14px ${c}44)` }}>
+    <svg width="130" height="130" viewBox="0 0 130 130" style={{ filter: `drop-shadow(0 0 14px ${c}66)`, animation: "neonPulse 2s infinite alternate" }}>
       <circle cx="65" cy="65" r={r} fill="none" stroke="#0d1726" strokeWidth="9" />
       <circle cx="65" cy="65" r={r} fill="none" stroke={c} strokeWidth="9" strokeLinecap="round"
         strokeDasharray={`${dash} ${circ} `} strokeDashoffset={circ * .25}
@@ -972,12 +972,14 @@ export default function App() {
 @keyframes staggerScaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 @keyframes staggerSlideLeft { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes staggerSlideRight { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes flashValue { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+@keyframes flashValue { 0% { opacity: 1; filter: brightness(2) drop-shadow(0 0 10px rgba(0,229,160,0.8)); } 100% { opacity: 1; filter: brightness(1) drop-shadow(0 0 5px rgba(0,229,160,0.2)); } }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes shrinkWidth { from { width: "100%"; } to { width: "0%"; } }
 @keyframes scaleInTopRight { from { opacity: 0; transform: scale(0.95) translate(10px, -10px); } to { opacity: 1; transform: scale(1) translate(0, 0); } }
 @keyframes dashMove { to { stroke-dashoffset: -8; } }
+@keyframes neonPulse { 0% { filter: drop-shadow(0 0 10px var(--pulse-color, rgba(0,229,160,0.4))) brightness(1); } 100% { filter: drop-shadow(0 0 20px var(--pulse-color, rgba(0,229,160,0.9))) brightness(1.2); } }
+@keyframes cyberBorderGlow { 0% { border-color: rgba(0,229,160,0.3); box-shadow: inset 0 0 15px rgba(0,229,160,0.1); } 50% { border-color: rgba(0,136,255,0.6); box-shadow: inset 0 0 25px rgba(0,136,255,0.2); } 100% { border-color: rgba(0,229,160,0.3); box-shadow: inset 0 0 15px rgba(0,229,160,0.1); } }
 
         .anim-panel { opacity: 0; animation-fill-mode: forwards; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
         .anim-slide-up { animation-name: staggerSlideUp; animation-duration: .7s; }
@@ -993,7 +995,10 @@ export default function App() {
         .vnav-btn.off:hover { color: #a0c0d8; border-bottom: 2px solid #3a5070; background: linear-gradient(to top, rgba(255,255,255,0.02) 0%, transparent 80%); }
 
         .hover-btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        .kpi-card { transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .kpi-card:hover { transform: translateY(-3px) scale(1.02); filter: brightness(1.2); cursor: default; }
         .txn-row:hover { background: rgba(0, 229, 160, 0.05)!important; box-shadow: inset 0 0 10px rgba(0, 229, 160, 0.1); }
+        .flash-update { animation: flashValue 0.5s ease-out; }
 `}</style>
 
       {/* Background Effects */}

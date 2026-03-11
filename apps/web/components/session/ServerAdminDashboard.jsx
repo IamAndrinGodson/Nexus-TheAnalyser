@@ -80,7 +80,7 @@ function TrustScoreChart({ history }) {
                 <div style={{ fontSize: 36, fontWeight: 900, color: c, fontFamily: "'JetBrains Mono',monospace" }}>{latest}</div>
                 <Tag c={c}>{latest >= 80 ? "HEALTHY" : latest >= 60 ? "CAUTION" : "CRITICAL"}</Tag>
             </div>
-            <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: 100 }}>
+            <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: 100, animation: "neonPulse 3s infinite alternate", "--pulse-color": c }}>
                 <defs>
                     <linearGradient id="trustGradAdmin" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor={c} stopOpacity="0.3" />
@@ -114,7 +114,7 @@ function BiometricRadar({ scores }) {
         <Panel>
             <PanelTitle icon="🎯">BIOMETRIC RADAR</PanelTitle>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                <svg viewBox="0 0 180 180" style={{ width: 160, height: 160 }}>
+                <svg viewBox="0 0 180 180" style={{ width: 160, height: 160, animation: "neonPulse 3s infinite alternate", "--pulse-color": c }}>
                     {[20, 40, 60, 80, 100].map(v => {
                         const ringPts = [0, 1, 2, 3, 4].map(i => getPt(v, i));
                         return <polygon key={v} points={ringPts.map(p => `${p.x},${p.y}`).join(" ")} fill="none" stroke="#1e2d45" strokeWidth="0.5" />;
@@ -545,8 +545,15 @@ body{ background:#000000; font-family: 'Syne', sans-serif; overflow-x: hidden; }
 @keyframes orbFloat1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(10vw,15vh) scale(1.1)}}
 @keyframes orbFloat2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-10vw,-15vh) scale(1.1)}}
 @keyframes staggerSlideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flashValue { 0% { opacity: 1; filter: brightness(2) drop-shadow(0 0 10px rgba(0,229,160,0.8)); } 100% { opacity: 1; filter: brightness(1) drop-shadow(0 0 5px rgba(0,229,160,0.2)); } }
+@keyframes neonPulse { 0% { filter: drop-shadow(0 0 5px var(--pulse-color, rgba(0,229,160,0.2))) brightness(1); } 100% { filter: drop-shadow(0 0 15px var(--pulse-color, rgba(0,229,160,0.6))) brightness(1.1); } }
+@keyframes cyberBorderGlow { 0% { border-color: rgba(0,229,160,0.3); box-shadow: inset 0 0 15px rgba(0,229,160,0.1); } 50% { border-color: rgba(0,136,255,0.6); box-shadow: inset 0 0 25px rgba(0,136,255,0.2); } 100% { border-color: rgba(0,229,160,0.3); box-shadow: inset 0 0 15px rgba(0,229,160,0.1); } }
 .anim-panel{opacity:0;animation:staggerSlideUp .7s cubic-bezier(0.2,0.8,0.2,1) forwards}
 .d0{animation-delay:0s}.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}
+
+.kpi-card { transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.kpi-card:hover { transform: translateY(-3px) scale(1.02); filter: brightness(1.2); cursor: default; }
+.flash-update { animation: flashValue 0.5s ease-out; }
             `}</style>
 
             {/* Background */}
@@ -614,9 +621,9 @@ body{ background:#000000; font-family: 'Syne', sans-serif; overflow-x: hidden; }
                         { label: "THREATS", val: String(stats.blockedThreats), c: stats.blockedThreats > 0 ? "#ff4d4d" : "#00e5a0" },
                         { label: "CLIENTS", val: String(tabs.length), c: "#0088ff" },
                     ].map(s => (
-                        <div key={s.label} style={{ textAlign: "center" }}>
+                        <div key={s.label} className="kpi-card" style={{ textAlign: "center" }}>
                             <div style={{ fontSize: 8, letterSpacing: 2, color: "#555", marginBottom: 4 }}>{s.label}</div>
-                            <div style={{ fontSize: 16, fontWeight: 800, color: s.c, fontFamily: "'JetBrains Mono',monospace" }}>{s.val}</div>
+                            <div key={s.val} className="flash-update" style={{ fontSize: 16, fontWeight: 800, color: s.c, fontFamily: "'JetBrains Mono',monospace", display: "inline-block" }}>{s.val}</div>
                         </div>
                     ))}
                 </div>
