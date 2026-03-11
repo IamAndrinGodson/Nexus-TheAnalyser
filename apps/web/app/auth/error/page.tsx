@@ -2,8 +2,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function AuthErrorPage() {
+function ErrorMessage() {
     const searchParams = useSearchParams();
     const error = searchParams.get("error") || "Unknown error";
 
@@ -17,6 +18,14 @@ export default function AuthErrorPage() {
     const message = errorMessages[error] || errorMessages.Default;
 
     return (
+        <p style={{ color: "#4a6080", fontSize: 13, lineHeight: 1.7, marginBottom: 24 }}>
+            {message}
+        </p>
+    );
+}
+
+export default function AuthErrorPage() {
+    return (
         <div
             style={{
                 minHeight: "100vh",
@@ -29,24 +38,17 @@ export default function AuthErrorPage() {
         >
             <div style={{ textAlign: "center", maxWidth: 400 }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>⚠</div>
-                <div
-                    style={{ fontSize: 9, letterSpacing: 4, color: "#ff4d4d", marginBottom: 10 }}
-                >
+                <div style={{ fontSize: 9, letterSpacing: 4, color: "#ff4d4d", marginBottom: 10 }}>
                     AUTHENTICATION ERROR
                 </div>
-                <div
-                    style={{
-                        fontSize: 20,
-                        fontWeight: 800,
-                        color: "#f0f6ff",
-                        marginBottom: 14,
-                    }}
-                >
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#f0f6ff", marginBottom: 14 }}>
                     Access Denied
                 </div>
-                <p style={{ color: "#4a6080", fontSize: 13, lineHeight: 1.7, marginBottom: 24 }}>
-                    {message}
-                </p>
+                
+                <Suspense fallback={<p style={{ color: "#4a6080", fontSize: 13, marginBottom: 24 }}>Loading...</p>}>
+                    <ErrorMessage />
+                </Suspense>
+
                 <a
                     href="/auth/login"
                     style={{

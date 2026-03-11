@@ -4,7 +4,11 @@ import type { NextConfig } from "next";
 // e.g.  RISK_API_URL=http://192.168.1.100:8000
 const API_URL = process.env.RISK_API_URL || "http://localhost:8000";
 
+const isClientInstance = process.env.NEXT_PUBLIC_IS_SERVER === "false";
+
 const nextConfig: NextConfig = {
+  // Use a separate build directory for the client instance so it doesn't collide with the admin's .next folder
+  distDir: isClientInstance ? '.next-client' : '.next',
   /**
    * API Proxy / Rewrites
    * -------------------------------------------------------------------
