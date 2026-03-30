@@ -1,4 +1,4 @@
-# Nexus TLS - Secure Session Management System
+# Nexus TLS — Secure Session Management System
 
 NEXUS TLS is an advanced, high-security session management platform built for logistics and enterprise sectors requiring strict compliance and risk-adaptive controls. It goes beyond traditional static timeouts by intelligently adapting to user behavior, transaction risk, and cross-tab activity in real-time.
 
