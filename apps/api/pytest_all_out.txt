@@ -1,0 +1,53 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\andri\Desktop\Nexus.v.0.1\apps\api\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\andri\Desktop\Nexus.v.0.1\apps\api
+plugins: anyio-4.12.1, asyncio-1.3.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 43 items
+
+tests/test_auth.py::TestRegistration::test_register_success PASSED       [  2%]
+tests/test_auth.py::TestRegistration::test_register_duplicate_email PASSED [  4%]
+tests/test_auth.py::TestRegistration::test_register_short_password PASSED [  6%]
+tests/test_auth.py::TestRegistration::test_register_invalid_email PASSED [  9%]
+tests/test_auth.py::TestRegistration::test_register_custom_role PASSED   [ 11%]
+tests/test_auth.py::TestLogin::test_login_success PASSED                 [ 13%]
+tests/test_auth.py::TestLogin::test_login_wrong_password PASSED          [ 16%]
+tests/test_auth.py::TestLogin::test_login_nonexistent_user PASSED        [ 18%]
+tests/test_auth.py::TestLogin::test_jwt_token_works PASSED               [ 20%]
+tests/test_auth.py::TestUserInfo::test_get_me_unauthorized PASSED        [ 23%]
+tests/test_auth.py::TestUserInfo::test_get_me_with_token PASSED          [ 25%]
+tests/test_auth.py::TestPasswordChange::test_change_password PASSED      [ 27%]
+tests/test_auth.py::TestPasswordChange::test_change_password_wrong_current PASSED [ 30%]
+tests/test_auth.py::TestLogout::test_logout PASSED                       [ 32%]
+tests/test_risk_engine.py::TestRiskEngineBasic::test_default_context_low_risk PASSED [ 34%]
+tests/test_risk_engine.py::TestRiskEngineBasic::test_returns_risk_result_type PASSED [ 37%]
+tests/test_risk_engine.py::TestRiskEngineBasic::test_timeout_clamped_minimum PASSED [ 39%]
+tests/test_risk_engine.py::TestRiskEngineBasic::test_timeout_clamped_maximum PASSED [ 41%]
+tests/test_risk_engine.py::TestRiskFactors::test_high_value_transaction_shortens_timeout PASSED [ 44%]
+tests/test_risk_engine.py::TestRiskFactors::test_trusted_device_extends_timeout PASSED [ 46%]
+tests/test_risk_engine.py::TestRiskFactors::test_off_hours_shortens_timeout PASSED [ 48%]
+tests/test_risk_engine.py::TestRiskFactors::test_geo_fence_extends_timeout PASSED [ 51%]
+tests/test_risk_engine.py::TestRiskFactors::test_geo_anomaly_shortens_and_requires_step_up PASSED [ 53%]
+tests/test_risk_engine.py::TestRiskFactors::test_high_biometric_extends_timeout PASSED [ 55%]
+tests/test_risk_engine.py::TestRiskFactors::test_low_biometric_shortens_timeout PASSED [ 58%]
+tests/test_risk_engine.py::TestRiskFactors::test_very_low_biometric_requires_step_up PASSED [ 60%]
+tests/test_risk_engine.py::TestRiskFactors::test_totp_failures_require_step_up PASSED [ 62%]
+tests/test_risk_engine.py::TestRiskLevels::test_low_risk PASSED          [ 65%]
+tests/test_risk_engine.py::TestRiskLevels::test_medium_risk PASSED       [ 67%]
+tests/test_risk_engine.py::TestRiskLevels::test_high_risk PASSED         [ 69%]
+tests/test_risk_engine.py::TestRiskFactorsOutput::test_factors_contain_labels PASSED [ 72%]
+tests/test_risk_engine.py::TestRiskFactorsOutput::test_high_txn_factor_appears PASSED [ 74%]
+tests/test_session.py::TestHeartbeat::test_heartbeat_success PASSED      [ 76%]
+tests/test_session.py::TestHeartbeat::test_heartbeat_unauthorized PASSED [ 79%]
+tests/test_session.py::TestExtendSession::test_extend_success PASSED     [ 81%]
+tests/test_session.py::TestBiometrics::test_biometrics_ok PASSED         [ 83%]
+tests/test_session.py::TestBiometrics::test_biometrics_warning PASSED    [ 86%]
+tests/test_session.py::TestBiometrics::test_biometrics_step_up PASSED    [ 88%]
+tests/test_session.py::TestSessionInfo::test_get_session_info PASSED     [ 90%]
+tests/test_session.py::TestSessionInfo::test_get_session_logs PASSED     [ 93%]
+tests/test_session.py::TestKillTab::test_kill_tab PASSED                 [ 95%]
+tests/test_session.py::TestEvents::test_ingest_event PASSED              [ 97%]
+tests/test_session.py::TestEvents::test_get_timeline PASSED              [100%]
+
+============================= 43 passed in 23.78s =============================
