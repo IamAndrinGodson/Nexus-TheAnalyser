@@ -1,0 +1,82 @@
+{
+    "__inputs": [],
+    "__requires": [
+        {
+            "type": "grafana",
+            "id": "grafana"
+        }
+    ],
+    "annotations": {
+        "list": []
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "title": "Active Sessions",
+            "type": "stat",
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "expr": "nexus_active_sessions_total"
+                }
+            ]
+        },
+        {
+            "title": "Risk Levels Distribution",
+            "type": "piechart",
+            "gridPos": {
+                "h": 8,
+                "w": 8,
+                "x": 4,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "expr": "sum by (level) (nexus_session_risk_level_current)"
+                }
+            ]
+        },
+        {
+            "title": "Average Adapted Timeout (s)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "expr": "avg(nexus_session_adapted_timeout_seconds)"
+                }
+            ]
+        }
+    ],
+    "refresh": "1m",
+    "schemaVersion": 36,
+    "style": "dark",
+    "tags": [
+        "security",
+        "sessions"
+    ],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "title": "NEXUS TLS - Session Security Dashboard",
+    "uid": "session-sec-dash-01",
+    "version": 1
+}

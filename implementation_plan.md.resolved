@@ -1,0 +1,225 @@
+# NEXUS TLS — Full Implementation Plan
+
+Implementing the complete NEXUS TLS system as described in the implementation guide. This is a monorepo-based full-stack application with a Next.js frontend, FastAPI backend, shared packages, and DevOps infrastructure.
+
+> [!IMPORTANT]
+> This is a large-scale project (estimated 8 weeks for a 3-person team by the guide). I will scaffold the **entire codebase structure** and write all the source code files described in the guide. However, external service provisioning (Upstash Redis, Supabase, MaxMind, Vercel/Railway deployment, Grafana Cloud) requires your accounts and API keys — I'll create `.env.example` files with placeholders.
+
+## User Review Required
+
+> [!WARNING]
+> **External Services**: The following require manual setup with your accounts. I will wire in placeholder config:
+> - **Upstash Redis** — Create at [console.upstash.com](https://console.upstash.com)
+> - **Supabase PostgreSQL** — Create at [supabase.com](https://supabase.com)
+> - **MaxMind GeoIP2** — Register at [maxmind.com](https://www.maxmind.com)
+> - **AbuseIPDB** — Get key from [abuseipdb.com](https://www.abuseipdb.com)
+> - **Mapbox** — Get token from [mapbox.com](https://www.mapbox.com)
+> - **Sentry** — Create project at [sentry.io](https://sentry.io)
+
+> [!CAUTION]
+> **Prerequisites on your machine**:
+> - Node.js >= 20.x
+> - Python >= 3.12
+> - pnpm >= 9.x
+> - Docker >= 24.x (for local dev with docker-compose)
+>
+> Please confirm you have these installed, or let me know which ones to skip.
+
+---
+
+## Proposed Changes
+
+The implementation follows the guide's 8-step deployment plan, organized into components:
+
+---
+
+### Phase 1: Monorepo & Project Scaffold
+
+#### [NEW] Root monorepo configuration
+- [package.json](file:///c:/Users/andri/Desktop/Nexus.v.0.1/package.json) — pnpm workspaces config
+- [pnpm-workspace.yaml](file:///c:/Users/andri/Desktop/Nexus.v.0.1/pnpm-workspace.yaml)
+- [turbo.json](file:///c:/Users/andri/Desktop/Nexus.v.0.1/turbo.json) — Turborepo pipeline
+- [.gitignore](file:///c:/Users/andri/Desktop/Nexus.v.0.1/.gitignore)
+- [docker-compose.yml](file:///c:/Users/andri/Desktop/Nexus.v.0.1/docker-compose.yml)
+
+---
+
+### Phase 2: Next.js Frontend (`apps/web/`)
+
+#### [NEW] Next.js App Router application
+- `apps/web/package.json` — Dependencies (next-auth, zustand, socket.io-client, etc.)
+- `apps/web/next.config.ts`
+- `apps/web/tsconfig.json`
+- `apps/web/tailwind.config.ts`
+- `apps/web/middleware.ts` — Edge middleware for route protection & security headers
+
+#### [NEW] Auth routes
+- `apps/web/app/api/auth/[...nextauth]/route.ts` — NextAuth config with Credentials + JWT + TOTP
+
+#### [NEW] Session API routes
+- `apps/web/app/api/session/heartbeat/route.ts`
+- `apps/web/app/api/session/extend/route.ts`
+- `apps/web/app/api/session/events/route.ts`
+
+#### [NEW] App pages
+- `apps/web/app/layout.tsx` — Root layout with SessionProvider
+- `apps/web/app/page.tsx` — Landing/redirect
+- `apps/web/app/dashboard/page.tsx` — Main dashboard
+- `apps/web/app/auth/login/page.tsx` — Login page with TOTP
+- `apps/web/app/auth/logout-summary/page.tsx` — Post-logout screen
+- `apps/web/app/auth/error/page.tsx`
+
+#### [NEW] Session components
+- `apps/web/components/session/SessionProvider.tsx` — Context + hooks + timer + biometrics + broadcast
+- `apps/web/components/session/SessionTimer.tsx` — Nav bar timer strip
+- `apps/web/components/session/WarningModal.tsx` — Expiry countdown dialog
+- `apps/web/components/session/LogoutScreen.tsx` — Post-logout summary
+- `apps/web/components/session/BiometricsPanel.tsx`
+- `apps/web/components/session/RiskAdaptivePanel.tsx`
+- `apps/web/components/session/CrossTabPanel.tsx`
+- `apps/web/components/session/ReplayTimeline.tsx`
+- `apps/web/components/session/GeoFenceMap.tsx`
+
+#### [NEW] Lib
+- `apps/web/lib/biometrics.worker.ts` — Web Worker for behavioral biometrics
+- `apps/web/lib/broadcast.ts` — BroadcastChannel wrapper
+- `apps/web/lib/auth.ts` — Password/TOTP verification helpers
+- `apps/web/lib/session.ts` — Redis session helpers (createSession, rotateJWT)
+
+#### [NEW] Env template
+- `apps/web/.env.example`
+
+---
+
+### Phase 3: Session Engine Package (`packages/session-engine/`)
+
+#### [NEW] Shared session logic package
+- `packages/session-engine/package.json`
+- `packages/session-engine/tsconfig.json`
+- `packages/session-engine/src/index.ts` — Exports
+- `packages/session-engine/src/timer.ts` — InactivityTimer class
+- `packages/session-engine/src/risk.ts` — Client-side risk calculation
+- `packages/session-engine/src/broadcast.ts` — BroadcastSync class
+- `packages/session-engine/src/tabs.ts` — TabRegistry
+
+---
+
+### Phase 4: Biometrics Package (`packages/biometrics/`)
+
+#### [NEW] Biometrics Web Worker package
+- `packages/biometrics/package.json`
+- `packages/biometrics/tsconfig.json`
+- `packages/biometrics/src/worker.ts` — Keystroke/mouse/scroll/click scoring
+- `packages/biometrics/src/scoring.ts` — Coefficient of variation + composite score
+
+---
+
+### Phase 5: FastAPI Backend (`apps/api/`)
+
+#### [NEW] FastAPI Risk Service
+- `apps/api/main.py` — FastAPI entrypoint + OpenTelemetry
+- `apps/api/requirements.txt`
+- `apps/api/Dockerfile`
+- `apps/api/.env.example`
+
+#### [NEW] Routers
+- `apps/api/routers/__init__.py`
+- `apps/api/routers/session.py` — Heartbeat, extend, tab kill, biometrics
+- `apps/api/routers/risk.py` — Risk scoring endpoint
+- `apps/api/routers/geo.py` — Geo-fence lookup
+- `apps/api/routers/events.py` — Session event ingestion
+
+#### [NEW] Services
+- `apps/api/services/__init__.py`
+- `apps/api/services/risk_engine.py` — Adaptive timeout calculator
+- `apps/api/services/biometrics.py` — Biometric score processor
+- `apps/api/services/geo_service.py` — MaxMind GeoIP2 wrapper + AbuseIPDB
+- `apps/api/services/threat_feed.py` — Threat intelligence integration
+
+#### [NEW] Models
+- `apps/api/models/__init__.py`
+- `apps/api/models/session.py` — Pydantic models for sessions
+- `apps/api/models/risk.py` — Pydantic models for risk
+
+#### [NEW] Database
+- `apps/api/db/__init__.py`
+- `apps/api/db/postgres.py` — Async SQLAlchemy session
+- `apps/api/db/redis.py` — Redis connection + encrypted session store
+- `apps/api/db/schema.sql` — Full PostgreSQL schema (users, sessions, events, transactions, etc.)
+
+#### [NEW] Middleware
+- `apps/api/middleware/__init__.py`
+- `apps/api/middleware/auth.py` — JWT verification middleware
+- `apps/api/middleware/rate_limit.py` — Redis-backed rate limiter
+
+#### [NEW] Tasks
+- `apps/api/tasks/__init__.py`
+- `apps/api/tasks/celery_app.py` — Async event processing
+
+#### [NEW] Alembic migrations
+- `apps/api/alembic.ini`
+- `apps/api/alembic/env.py`
+- `apps/api/alembic/versions/` — Initial migration
+
+---
+
+### Phase 6: CI/CD & DevOps
+
+#### [NEW] GitHub Actions
+- `.github/workflows/ci.yml` — Test frontend, test backend, security scan, deploy
+
+#### [NEW] Observability
+- `monitoring/prometheus/alerts.yml` — Session alerts
+- `monitoring/grafana/dashboards/session-dashboard.json` — Pre-built dashboard
+
+---
+
+### Phase 7: Security & Documentation
+
+#### [NEW] Security config
+- `apps/web/app/security-headers.ts` — HSTS, CSP, etc.
+
+#### [MODIFY] Existing files preserved
+- [NEXUS_TLS_Implementation_Guide.md](file:///c:/Users/andri/Desktop/Nexus.v.0.1/NEXUS_TLS_Implementation_Guide.md) — No changes
+- [nexus-session-v2.jsx](file:///c:/Users/andri/Desktop/Nexus.v.0.1/nexus-session-v2.jsx) — Preserved as reference/demo
+
+---
+
+## Verification Plan
+
+### Automated Tests
+
+1. **Frontend build verification**:
+   ```bash
+   cd c:\Users\andri\Desktop\Nexus.v.0.1\apps\web
+   pnpm install
+   pnpm build
+   ```
+   Expected: Build completes without errors.
+
+2. **Backend Python syntax check**:
+   ```bash
+   cd c:\Users\andri\Desktop\Nexus.v.0.1\apps\api
+   python -m py_compile main.py
+   python -m py_compile routers/session.py
+   python -m py_compile services/risk_engine.py
+   python -m py_compile services/geo_service.py
+   python -m py_compile db/redis.py
+   ```
+   Expected: No syntax errors.
+
+3. **Session Engine package build**:
+   ```bash
+   cd c:\Users\andri\Desktop\Nexus.v.0.1\packages\session-engine
+   pnpm install
+   pnpm build
+   ```
+
+### Manual Verification
+
+1. **Structure verification**: After implementation, run `tree` on the project root to confirm all directories and files match the guide's architecture.
+2. **Docker compose validation**: Run `docker-compose config` to verify the compose file is valid YAML.
+3. **Dev server smoke test**: Run `pnpm dev` from root to verify the Next.js frontend starts successfully on `localhost:3000`.
+
+> [!NOTE]
+> Full end-to-end testing (login flows, session timeout, biometrics) requires external services (Redis, PostgreSQL) to be provisioned. I will focus on ensuring all code is syntactically correct, properly structured, and follows the guide exactly.

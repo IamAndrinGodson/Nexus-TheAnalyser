@@ -1,0 +1,29 @@
+groups:
+  - name: session-security-alerts
+    rules:
+      - alert: HighGeoAnomalyRate
+        expr: rate(nexus_session_geo_anomalies_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High rate of geographic anomalies detected"
+          description: "Over 10 geo-anomalous logins per minute in the last 5 minutes. Possible distributed credential stuffing."
+
+      - alert: BiometricScoreDropSpike
+        expr: rate(nexus_session_biometric_drops_total[5m]) > 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Significant spike in failed biometric verifications"
+          description: "Multiple active sessions are experiencing sudden drops in biometric confidence scores. Check for automated scraping bots bypassing traditional auth."
+
+      - alert: SessionStepUpFailures
+        expr: rate(nexus_session_stepup_failures_total[5m]) > 5
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Step-up authentication (TOTP) failing repeatedly"
+          description: "Users are failing step-up auth challenges triggered by risk adaptations."
